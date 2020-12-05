@@ -5,24 +5,28 @@ output:
     keep_md: true
 ---
 ## Setting global options
-```{r globalSettings}
+
+```r
 knitr::opts_chunk$set(message = FALSE)
 options(scipen=999)
 ```
 ## Downloading dependencies
-```{r downloadDependencies}
+
+```r
 library(dplyr)
 library(ggplot2)
 ```
 
 ## Loading and preprocessing the data
-```{r loadData}
+
+```r
 activity <- read.csv("activity.csv")
 ```
 
 
 ## What is mean total number of steps taken per day?
-```{r meanStepsPerDay}
+
+```r
 totalStepsPerDay <- activity %>%
   group_by(date) %>%
   summarize(totalSteps = sum(steps, na.rm = TRUE))
@@ -30,16 +34,19 @@ stepsPerDay <- totalStepsPerDay$totalSteps
 hist(stepsPerDay)
 ```
 
+![](PA1_template_files/figure-html/meanStepsPerDay-1.png)<!-- -->
+
 **Summary statistics for the distribution of total steps taken per day:**
 
-Mean: `r mean(stepsPerDay)`
+Mean: 9354.2295082
 
-Median: `r median(stepsPerDay)`
+Median: 10395
 
 
 
 ## What is the average daily activity pattern?
-```{r averageDailyActivityPattern}
+
+```r
 averageStepsPerInterval <- activity %>%
   group_by(interval) %>%
   summarize(averageSteps = mean(steps, na.rm = TRUE))
@@ -53,15 +60,18 @@ with(averageStepsPerInterval, plot(
 ))
 ```
 
-The interval with the highest average number of steps is `r intervalWithMaxAverage`
+![](PA1_template_files/figure-html/averageDailyActivityPattern-1.png)<!-- -->
+
+The interval with the highest average number of steps is 835
 
 
 ## Imputing missing values
-`r nrow(activity[!complete.cases(activity),])` rows have NAs.
+2304 rows have NAs.
 
 For any row with missing steps, the steps were imputed by using the mean steps
 for that row's interval.
-```{r imputingMissingValues}
+
+```r
 activity$steps <- apply(activity, 1, function(row) {
   thisInterval <- as.numeric(row[["interval"]])
   if (is.na(row[["steps"]])) {
@@ -83,17 +93,20 @@ stepsPerDay <- totalStepsPerDay$totalSteps
 hist(stepsPerDay)
 ```
 
+![](PA1_template_files/figure-html/imputingMissingValues-1.png)<!-- -->
+
 **Summary statistics for the distribution of total steps taken per day:**
 
-Mean: `r mean(stepsPerDay)`
+Mean: 10766.1886792
 
-Median: `r median(stepsPerDay)`
+Median: 10766.1886792
 
 Imputing step counts raised the average and median steps recorded per day.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-``` {r weekdayVsWeekend}
+
+```r
 activity$isWeekend <- sapply(as.Date(activity$date), function(dat) {
   if (weekdays(dat) %in% c("Sunday", "Saturday")) {
     return("Weekend")
@@ -114,3 +127,5 @@ ggplot(averageStepsByIntervalAndWeekend, aes(interval, averageSteps)) +
   labs(title = "Average Steps Per Interval") +
   labs(y = "Average Steps", x = "Interval")
 ```
+
+![](PA1_template_files/figure-html/weekdayVsWeekend-1.png)<!-- -->
